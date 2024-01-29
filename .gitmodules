@@ -1,0 +1,3 @@
+[submodule "efivar-rs"]
+	path = efivar-rs
+	url = git@github.com:pitaj/efivar-rs.git
