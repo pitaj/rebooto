@@ -13,17 +13,18 @@ mod manjaro {
         _next: &str,
     ) -> anyhow::Result<()> {
         let executable = std::env::current_exe()?.canonicalize()?;
-        let executable = executable.to_str().context("executable path not utf8")?;
 
-        let dry_run = if dry_run { "--dry-run" } else { "" };
+        let mut command = std::process::Command::new("/usr/bin/sudo");
+        command
+            .arg(&executable)
+            .arg(target_os)
+            .arg("--privileged");
 
-        let stat = std::process::Command::new("/bin/bash")
-            .args([
-                "--login",
-                "-c",
-                &format!("sudo {executable} {dry_run} --privileged {target_os}"),
-            ])
-            .status()?;
+        if dry_run {
+            command.arg("--dry-run");
+        }
+
+        let stat = command.status()?;
         if !stat.success() {
             anyhow::bail!("failed to run as privileged: {stat}");
         }
